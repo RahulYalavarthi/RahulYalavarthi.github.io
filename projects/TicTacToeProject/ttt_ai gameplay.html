@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>JavaScript-Tic-Tac-Toe-Project</title>
+  <style media="screen">
+    body {
+      background: #e0e5ec;
+      text-align: center;
+    }
+
+    td {
+      border: 4px solid #333;
+      height: 100px;
+      width: 100px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 70px;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .3);
+    }
+
+    table tr:first-child td {
+      border-top: 2px solid #333;
+    }
+
+    table tr:last-child td {
+      border-bottom: 2px solid #333;
+    }
+
+    table tr td:first-child {
+      border-left: 2px solid #333;
+    }
+
+    table tr td:last-child {
+      border-right: 2px solid #333;
+    }
+
+    table {
+      border-collapse: collapse;
+      position: absolute;
+      left: 50%;
+      margin-left: -155px;
+      top: 100px;
+    }
+
+    .endgame {
+      display: none;
+      width: 200px;
+      top: 120px;
+      background-color: rgba(37, 167, 54, 0.8);
+      position: absolute;
+      left: 50%;
+      margin-left: -100px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      text-align: center;
+      border-radius: 5px;
+      color: white;
+      font-size: 2em;
+    }
+
+    button {
+      margin: 20px;
+    }
+
+    .custom-btn {
+      width: 130px;
+      height: 40px;
+      color: white;
+      border-radius: 5px;
+      padding: 10px 25px;
+      font-weight: 500;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      display: inline-block;
+    }
+
+    .btn-2 {
+      background: rgb(96, 9, 240);
+      background: linear-gradient(0deg, rgba(96, 9, 240, 1) 0%, rgba(129, 5, 240, 1) 100%);
+      border: none;
+
+    }
+
+    .btn-2:before {
+      height: 0%;
+      width: 2px;
+    }
+
+    .btn-2:hover {
+      box-shadow: 4px 4px 6px 0 rgba(255, 255, 255, .5),
+        -4px -4px 6px 0 rgba(116, 125, 136, .5),
+        inset -4px -4px 6px 0 rgba(255, 255, 255, .2),
+        inset 4px 4px 6px 0 rgba(0, 0, 0, .4);
+    }
+
+    @media (min-width: 1080px) {
+      .replay {
+        left: 45%;
+        position: relative;
+        display: inline-block;
+        padding: 1.2em 2em;
+        text-decoration: none;
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+        color: white;
+      }
+
+      .replay::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0%;
+        bottom: 0;
+        right: 0;
+        background: linear-gradient(135deg, #6e8efb, #a777e3);
+        border-radius: 4px;
+        transition: box-shadow .5s ease, transform .2s ease;
+        will-change: transform;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
+        transform:
+          translateY(var(--ty, 0)) rotateX(var(--rx, 0)) rotateY(var(--ry, 0)) translateZ(var(--tz, -12px));
+      }
+
+      .replay:hover::before {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, .3);
+      }
+
+      .replay::after {
+        position: relative;
+        display: inline-block;
+        content: attr(data-title);
+        transition: transform .2s ease;
+        font-weight: bold;
+        letter-spacing: .01em;
+        will-change: transform;
+        transform:
+          translateY(var(--ty, 0)) rotateX(var(--rx, 0)) rotateY(var(--ry, 0));
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Tic Tac Toe Ai mode, RY 159</h1>
+  <h3>You are 'O' computer is 'X', start playing</h3>
+  <table>
+    <tr>
+      <td class="cell" id='0'></td>
+      <td class="cell" id='1'></td>
+      <td class="cell" id='2'></td>
+    </tr>
+    <tr>
+      <td class="cell" id='3'></td>
+      <td class="cell" id='4'></td>
+      <td class="cell" id='5'></td>
+    </tr>
+    <tr>
+      <td class="cell" id='6'></td>
+      <td class="cell" id='7'></td>
+      <td class="cell" id='8'></td>
+    </tr>
+  </table>
+  <div class="endgame">
+    <div class="text"></div>
+    <button class="custom-btn btn-2" onClick="startGame()">Replay</button>
+  </div>
+  <a class="replay" onClick="startGame()" data-title="Replay Tic Tac Toe"></a>
+  <script>
+    var origBoard;
+    const oPlayer = 'O';
+    const aiPlayer = 'X'
+    const winCombos = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [6, 4, 2]
+    ]
+
+    const cells = document.querySelectorAll('.cell');
+    startGame();
+
+    function startGame() {
+      document.querySelector(".endgame").style.display = "none";
+      origBoard = Array.from(Array(9).keys());
+      for (var i = 0; i < cells.length; i++) {
+        cells[i].innerText = '';
+        cells[i].style.removeProperty('background-color');
+        cells[i].addEventListener('click', turnClick, false);
+      }
+    }
+
+
+    function turnClick(square) {
+
+
+      if (typeof origBoard[square.target.id] == 'number') {
+        turn(square.target.id, oPlayer)
+        if (!checkTie()) turn(bestSpot(), aiPlayer);
+      }
+    }
+
+    function turn(squareId, objectPlayer) {
+      origBoard[squareId] = objectPlayer;
+      document.getElementById(squareId).innerText = objectPlayer;
+
+      let gameWon = checkWin(origBoard, objectPlayer)
+      if (gameWon) gameOver(gameWon)
+    }
+
+    function checkWin(board, player) {
+      let plays = board.reduce((a, e, i) =>
+        (e === player) ? a.concat(i) : a, []);
+      let gameWon = null;
+      for (let [index, win] of winCombos.entries()) {
+        if (win.every(elem => plays.indexOf(elem) > -1)) {
+          gameWon = { index: index, player: player };
+          break;
+        }
+      }
+      return gameWon;
+    }
+    function gameOver(gameWon) {
+      for (let index of winCombos[gameWon.index]) {
+        document.getElementById(index).style.backgroundColor =
+          gameWon.player == oPlayer ? "blue" : "red";
+      }
+      for (var i = 0; i < cells.length; i++) {
+        cells[i].removeEventListener('click', turnClick, false);
+      }
+
+      declareWinner(gameWon.player == oPlayer ? "You win!" : "You lose.");
+    }
+
+    function declareWinner(whoWin) {
+      document.querySelector(".endgame").style.display = "block";
+      document.querySelector(".endgame .text").innerText = whoWin;
+    }
+
+    function emptySquares() {
+      return origBoard.filter(s => typeof s == 'number');
+    }
+
+    function bestSpot() {
+
+      return minimax(origBoard, aiPlayer).index;
+    }
+
+    function checkTie() {
+      if (emptySquares().length == 0) {
+        for (var i = 0; i < cells.length; i++) {
+          cells[i].style.backgroundColor = "pink";
+          cells[i].removeEventListener('click', turnClick, false);
+        }
+        declareWinner("Tie Game!")
+        return true;
+      }
+      return false;
+    }
+
+    function minimax(newBoard, player) {
+      var availSpots = emptySquares();
+
+      if (checkWin(newBoard, oPlayer)) {
+        return { score: -10 };
+      } else if (checkWin(newBoard, aiPlayer)) {
+        return { score: 10 };
+      } else if (availSpots.length === 0) {
+        return { score: 0 };
+      }
+      var moves = [];
+      for (var i = 0; i < availSpots.length; i++) {
+        var move = {};
+        move.index = newBoard[availSpots[i]];
+        newBoard[availSpots[i]] = player;
+
+        if (player == aiPlayer) {
+          var result = minimax(newBoard, oPlayer);
+          move.score = result.score;
+        } else {
+          var result = minimax(newBoard, aiPlayer);
+          move.score = result.score;
+        }
+
+        newBoard[availSpots[i]] = move.index;
+
+        moves.push(move);
+      }
+
+      var bestMove;
+      if (player === aiPlayer) {
+        var bestScore = -10000;
+        for (var i = 0; i < moves.length; i++) {
+          if (moves[i].score > bestScore) {
+            bestScore = moves[i].score;
+            bestMove = i;
+          }
+        }
+      } else {
+        var bestScore = 10000;
+        for (var i = 0; i < moves.length; i++) {
+          if (moves[i].score < bestScore) {
+            bestScore = moves[i].score;
+            bestMove = i;
+          }
+        }
+      }
+
+      return moves[bestMove];
+    }
+    const docStyle = document.documentElement.style
+    const aElem = document.querySelector('a')
+    const boundingClientRect = aElem.getBoundingClientRect()
+
+    aElem.onmousemove = function (e) {
+
+      const x = e.clientX - boundingClientRect.left
+      const y = e.clientY - boundingClientRect.top
+
+      const xc = boundingClientRect.width / 2
+      const yc = boundingClientRect.height / 2
+
+      const dx = x - xc
+      const dy = y - yc
+
+      docStyle.setProperty('--rx', `${dy / -1}deg`)
+      docStyle.setProperty('--ry', `${dx / 10}deg`)
+    }
+
+    aElem.onmouseleave = function (e) {
+      docStyle.setProperty('--ty', '0')
+      docStyle.setProperty('--rx', '0')
+      docStyle.setProperty('--ry', '0')
+    }
+
+    aElem.onmousedown = function (e) {
+      docStyle.setProperty('--tz', '-25px')
+    }
+
+    document.body.onmouseup = function (e) {
+      docStyle.setProperty('--tz', '-12px')
+    }
+  </script>
+</body>
+
+</html>
