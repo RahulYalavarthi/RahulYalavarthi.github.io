@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Wordle Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    #wordle-container {
+      margin: 0 auto;
+      width: 300px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .wordle-box {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      margin: 5px;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+      text-align: center;
+      line-height: 40px;
+      font-size: 18px;
+    }
+
+    .wordle-input {
+      padding: 5px;
+      font-size: 18px;
+      width: 200px;
+      margin-top: 20px;
+    }
+
+    #wordle-button {
+      margin-top: 10px;
+      padding: 8px 16px;
+      font-size: 16px;
+    }
+
+    #wordle-results {
+      margin-top: 20px;
+    }
+
+    #wordle-results .result {
+      display: inline-block;
+      margin: 5px;
+    }
+
+    #wordle-results .result span {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      font-size: 18px;
+      text-align: center;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+      margin-right: 5px;
+    }
+
+    #wordle-message {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    #attempts-left {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="wordle-container">
+    <h1>Wordle Game</h1>
+    <div id="wordle-word"></div>
+    <input type="text" class="wordle-input" maxlength="5" />
+    <button id="wordle-button">Check</button>
+    <div id="wordle-results"></div>
+    <div id="wordle-message"></div>
+    <div id="attempts-left"></div>
+  </div>
+
+  <script>
+    // Array of possible words
+    var words = ["apple", "banana", "cherry", "grape", "lemon"];
+
+    // Randomly select a word from the array
+    var selectedWord = words[Math.floor(Math.random() * words.length)];
+
+    // Get the required elements from the DOM
+    var wordContainer = document.getElementById("wordle-word");
+    var inputField = document.getElementsByClassName("wordle-input")[0];
+    var checkButton = document.getElementById("wordle-button");
+    var resultsDiv = document.getElementById("wordle-results");
+    var messageDiv = document.getElementById("wordle-message");
+    var attemptsLeftDiv = document.getElementById("attempts-left");
+
+    // Variables for tracking game state
+    var attemptsLeft = 6;
+    var correctGuesses = 0;
+
+    // Display the selected word as boxes
+    for (var i = 0; i < selectedWord.length; i++) {
+      var box = document.createElement("div");
+      box.className = "wordle-box";
+      wordContainer.appendChild(box);
+    }
+
+    // Add event listener to the check button
+    checkButton.addEventListener("click", function() {
+      var guessedWord = inputField.value.toLowerCase();
+      if (guessedWord.length !== 5) {
+        messageDiv.textContent = "Please enter a 5-letter word.";
+      } else {
+        attemptsLeft--;
+        attemptsLeftDiv.textContent = "Attempts left: " + attemptsLeft;
+        var result = document.createElement("div");
+        result.className = "result";
+        for (var j = 0; j < guessedWord.length; j++) {
+          var span = document.createElement("span");
+          span.textContent = guessedWord[j];
+          if (selectedWord.includes(guessedWord[j])) {
+            span.style.backgroundColor = "green";
+            correctGuesses++;
+          } else {
+            span.style.backgroundColor = "red";
+          }
+          result.appendChild(span);
+        }
+        resultsDiv.appendChild(result);
+        inputField.value = "";
+
+        if (correctGuesses === selectedWord.length) {
+          messageDiv.textContent = "Congratulations! You guessed the word.";
+        } else if (attemptsLeft === 0) {
+          messageDiv.textContent = "You lost. The word was: " + selectedWord;
+        }
+      }
+    });
+
+    // Initialize attempts left display
+    attemptsLeftDiv.textContent = "Attempts left: " + attemptsLeft;
+  </script>
+</body>
+</html>
